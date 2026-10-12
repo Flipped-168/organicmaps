@@ -106,7 +106,8 @@ final class MWMRoutePointSelectionTests: XCTestCase {
   }
 
   func test_GivenOnePoint_WhenRemoved_ThenClosesRoutePlanning() throws {
-    MWMRouter.addPoint(makePoint(type: .start, title: "start", coordinate: 10))
+    select(type: .start, title: "start", coordinate: 10)
+    XCTAssertEqual(manager.state, .prepare)
 
     try MWMRouter.removePointAndRebuild(XCTUnwrap(MWMRouter.startPoint()))
 

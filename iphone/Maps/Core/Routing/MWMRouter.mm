@@ -283,13 +283,6 @@ using namespace routing;
   return [turnNotifications copy];
 }
 
-+ (void)removePoint:(MWMRoutePoint *)point
-{
-  RouteMarkData pt = point.routeMarkData;
-  GetFramework().GetRoutingManager().RemoveRoutePoint(pt.m_pointType, pt.m_intermediateIndex);
-  [[MWMNavigationDashboardManager sharedManager] onRoutePointsUpdated];
-}
-
 + (void)removePointAndRebuild:(MWMRoutePoint *)point
 {
   if (!point)
@@ -299,7 +292,9 @@ using namespace routing;
     [self stopRouting];
     return;
   }
-  [self removePoint:point];
+  RouteMarkData pt = point.routeMarkData;
+  GetFramework().GetRoutingManager().RemoveRoutePoint(pt.m_pointType, pt.m_intermediateIndex);
+  [[MWMNavigationDashboardManager sharedManager] onRoutePointsUpdated];
   [self rebuildWithBestRouter:NO];
 }
 
