@@ -69,7 +69,7 @@ final class MWMRoutePointSelectionTests: XCTestCase {
   func test_GivenRoute_WhenStartIsRemoved_ThenFirstStopBecomesStart() throws {
     seedRoute()
 
-    MWMRouter.removePointAndRebuild(try XCTUnwrap(MWMRouter.startPoint()))
+    try MWMRouter.removePointAndRebuild(XCTUnwrap(MWMRouter.startPoint()))
 
     XCTAssertEqual(MWMRouter.points().map(\.title), ["first stop", "second stop", "finish"])
     XCTAssertEqual(MWMRouter.points().map(\.type), [.start, .intermediate, .finish])
@@ -79,7 +79,7 @@ final class MWMRoutePointSelectionTests: XCTestCase {
   func test_GivenRoute_WhenFinishIsRemoved_ThenLastStopBecomesFinish() throws {
     seedRoute()
 
-    MWMRouter.removePointAndRebuild(try XCTUnwrap(MWMRouter.finishPoint()))
+    try MWMRouter.removePointAndRebuild(XCTUnwrap(MWMRouter.finishPoint()))
 
     XCTAssertEqual(MWMRouter.points().map(\.title), ["start", "first stop", "second stop"])
     XCTAssertEqual(MWMRouter.points().map(\.type), [.start, .intermediate, .finish])
@@ -89,7 +89,7 @@ final class MWMRoutePointSelectionTests: XCTestCase {
   func test_GivenTwoPoints_WhenEndpointIsRemoved_ThenOtherEndpointKeepsItsRole() throws {
     seedEndpoints()
 
-    MWMRouter.removePointAndRebuild(try XCTUnwrap(MWMRouter.startPoint()))
+    try MWMRouter.removePointAndRebuild(XCTUnwrap(MWMRouter.startPoint()))
 
     XCTAssertEqual(MWMRouter.points().map(\.title), ["finish"])
     XCTAssertEqual(MWMRouter.points().map(\.type), [.finish])
@@ -98,7 +98,7 @@ final class MWMRoutePointSelectionTests: XCTestCase {
     MWMRouter.stopRouting()
     seedEndpoints()
 
-    MWMRouter.removePointAndRebuild(try XCTUnwrap(MWMRouter.finishPoint()))
+    try MWMRouter.removePointAndRebuild(XCTUnwrap(MWMRouter.finishPoint()))
 
     XCTAssertEqual(MWMRouter.points().map(\.title), ["start"])
     XCTAssertEqual(MWMRouter.points().map(\.type), [.start])
@@ -108,7 +108,7 @@ final class MWMRoutePointSelectionTests: XCTestCase {
   func test_GivenOnePoint_WhenRemoved_ThenClosesRoutePlanning() throws {
     MWMRouter.addPoint(makePoint(type: .start, title: "start", coordinate: 10))
 
-    MWMRouter.removePointAndRebuild(try XCTUnwrap(MWMRouter.startPoint()))
+    try MWMRouter.removePointAndRebuild(XCTUnwrap(MWMRouter.startPoint()))
 
     XCTAssertTrue(MWMRouter.points().isEmpty)
     XCTAssertEqual(manager.state, .closed)
