@@ -294,6 +294,11 @@ using namespace routing;
 {
   if (!point)
     return;
+  if ([self pointsCount] == 1)
+  {
+    [self stopRouting];
+    return;
+  }
   [self removePoint:point];
   [self rebuildWithBestRouter:NO];
 }
