@@ -4,9 +4,10 @@ Script to sort categories.txt alphabetically within each section.
 
 Rules:
 - Keep comments (lines starting with #)
-- Keep the first line of each section (starts with @ or doesn't have a colon)
-- Keep the en: line immediately after the first line
+- Keep the first non-comment line of each block as its type or group header
+- Keep en: as the first translation
 - Sort all other language lines alphabetically
+- Keep comments in their original positions
 - Preserve empty lines between sections
 """
 
@@ -24,65 +25,29 @@ def parse_and_sort_categories(input_file: str, output_file: str) -> None:
         line = lines[i].rstrip("\n")
 
         # Handle comments and empty lines
-        if line.startswith("#") or line == "":
+        if line.lstrip().startswith("#") or not line.strip():
             result.append(line)
             i += 1
             continue
 
-        # Check if this is the start of a section
-        # Section starts with @ or doesn't contain a colon
-        if line.startswith("@") or ":" not in line:
-            # This is the first line of a section
-            section_first_line = line
-            i += 1
-
-            # Collect all lines in this section until we hit an empty line or EOF
-            section_lines = []
-            en_line = None
-
-            while i < len(lines):
-                current_line = lines[i].rstrip("\n")
-
-                # Empty line marks the end of the section
-                if current_line == "":
-                    break
-
-                # Comments within a section (shouldn't happen, but let's handle it)
-                if current_line.startswith("#"):
-                    section_lines.append(current_line)
-                    i += 1
-                    continue
-
-                # Check if this is the en: line
-                if current_line.startswith("en:"):
-                    en_line = current_line
-                    i += 1
-                    continue
-
-                # Regular language line
-                section_lines.append(current_line)
-                i += 1
-
-            # Sort the section lines alphabetically by language code
-            section_lines.sort(key=lambda x: x.split(":")[0])
-
-            # Build the section output
-            result.append(section_first_line)
-
-            # Add en: line right after the first line (if it exists)
-            if en_line:
-                result.append(en_line)
-
-            # Add sorted lines
-            result.extend(section_lines)
-
-            # Don't increment i here since the while loop already did
-            continue
-
-        # If we get here, it's an unexpected line format
-        # Just add it as-is to be safe
+        # Block position identifies headers: OSM type names can themselves contain colons.
         result.append(line)
         i += 1
+
+        section_lines = []
+        while i < len(lines) and lines[i].strip():
+            section_lines.append(lines[i].rstrip("\n"))
+            i += 1
+
+        translations = sorted(
+            (line for line in section_lines if not line.lstrip().startswith("#")),
+            key=lambda line: (not line.startswith("en:"), line.split(":", 1)[0]),
+        )
+        translations = iter(translations)
+        result.extend(
+            line if line.lstrip().startswith("#") else next(translations)
+            for line in section_lines
+        )
 
     # Write the result
     with open(output_file, "w", encoding="utf-8") as f:
