@@ -33,10 +33,8 @@ public:
   // If |lang| is not supported, "en" is used.
   void AddLanguage(std::string lang);
 
-  // Returns names (in language |queryLang|) and types of categories that have a synonym containing
-  // the substring |query| (in any language that was added before).
-  // If |lang| is not supported, "en" is used.
-  // The returned list is sorted.
+  // Returns readable classifier type identifiers (e.g. "amenity-cafe") whose indexed synonyms
+  // contain every normalized query token as a substring. Searches all languages added with AddLanguage().
   TypeNames Search(std::string const & query) const;
 
   TypeNames GetRecentCategories() const;

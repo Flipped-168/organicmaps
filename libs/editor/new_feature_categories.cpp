@@ -35,9 +35,7 @@ NewFeatureCategories::NewFeatureCategories(editor::EditorConfig const & config)
 NewFeatureCategories::NewFeatureCategories(NewFeatureCategories && other) noexcept
   : m_index(std::move(other.m_index))
   , m_types(std::move(other.m_types))
-{
-  // Do not move m_addedLangs, see Framework::GetEditorCategories() usage.
-}
+{}
 
 void NewFeatureCategories::AddLanguage(std::string lang)
 {
@@ -107,6 +105,6 @@ NewFeatureCategories::TypeNames NewFeatureCategories::GetRecentCategories() cons
   if (recentlyUsedCategories.size() > kMaxRecentlyUsedCategoriesCount)
     recentlyUsedCategories.resize(kMaxRecentlyUsedCategoriesCount);
   return recentlyUsedCategories;
-}  // namespace search
+}
 
 }  // namespace osm
