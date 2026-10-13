@@ -1,6 +1,7 @@
 final class TransportTransitTrain: TransportTransitCell {
   enum Config {
-    static var labelTextColor: UIColor { .whitePrimary }
+    // A transit line supplies the badge color; keep its icon and number white in both themes.
+    static let contentColor = UIColor.white
     static let labelTextFont = UIFont.bold12
     static let labelTrailing: CGFloat = 4
   }
@@ -11,10 +12,15 @@ final class TransportTransitTrain: TransportTransitCell {
     }
   }
 
-  @IBOutlet private var image: UIImageView!
+  @IBOutlet private var image: UIImageView! {
+    didSet {
+      image.tintColor = Config.contentColor
+    }
+  }
+
   @IBOutlet private var label: UILabel! {
     didSet {
-      label.textColor = Config.labelTextColor
+      label.textColor = Config.contentColor
       label.font = Config.labelTextFont
     }
   }
@@ -35,15 +41,17 @@ final class TransportTransitTrain: TransportTransitCell {
 
   override func config(step: MWMRouterTransitStepInfo) {
     switch step.type {
-    case .intermediatePoint: fallthrough
-    case .pedestrian: fatalError()
+    case .intermediatePoint, .pedestrian, .ruler: fatalError()
     case .train: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_train")
     case .subway: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_metro")
     case .lightRail: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_lightrail")
     case .monorail: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_monorail")
-    case .tram: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_tram")
+    case .tram, .cableTram: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_tram")
     case .bus: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_bus")
-    case .ruler: fatalError()
+    case .ferry, .waterService: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_ferry")
+    case .aerialLift: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_aerial_lift")
+    case .funicular: image.image = #imageLiteral(resourceName: "ic_20px_route_planning_funicular")
+    case .airService: image.image = #imageLiteral(resourceName: "ic_bm_airport").withRenderingMode(.alwaysTemplate)
     }
     background.backgroundColor = step.color
 
