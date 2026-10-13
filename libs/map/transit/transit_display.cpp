@@ -561,10 +561,13 @@ bool TransitRouteDisplay::ProcessSubroute(std::vector<routing::RouteSegment> con
   for (size_t i = 0; i < segments.size(); ++i)
   {
     auto const & s = segments[i];
-    auto const time = static_cast<int>(ceil(s.GetTimeFromBeginningSec() - sp.m_prevTime));
+    // Differences of cumulative whole seconds keep merged steps consistent with the route total.
+    auto const timeFromBeginning = static_cast<int>(ceil(s.GetTimeFromBeginningSec()));
+    ASSERT_GREATER_OR_EQUAL(timeFromBeginning, sp.m_prevTime, ());
+    auto const time = timeFromBeginning - sp.m_prevTime;
     auto const distance = s.GetDistFromBeginningMeters() - sp.m_prevDistance;
     sp.m_prevDistance = s.GetDistFromBeginningMeters();
-    sp.m_prevTime = s.GetTimeFromBeginningSec();
+    sp.m_prevTime = timeFromBeginning;
 
     if (!s.HasTransitInfo())
     {
@@ -592,7 +595,7 @@ bool TransitRouteDisplay::ProcessSubroute(std::vector<routing::RouteSegment> con
   }
 
   m_routeInfo.m_totalDistInMeters = sp.m_prevDistance;
-  m_routeInfo.m_totalTimeInSec = static_cast<int>(ceil(sp.m_prevTime));
+  m_routeInfo.m_totalTimeInSec = sp.m_prevTime;
 
   bool const isValidSubroute = subroute.m_polyline.GetSize() > 1;
   if (!isValidSubroute)
