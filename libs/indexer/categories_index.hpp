@@ -30,7 +30,7 @@ public:
   CategoriesIndex & operator=(CategoriesIndex &&) = default;
 
   // Adds all categories that match |type|. Only synonyms
-  // in language |lang| are added. See indexer/categories_holder.cpp
+  // in language |lang| are added. See indexer/categories_holder.hpp
   // for language enumeration.
   void AddCategoryByTypeAndLang(uint32_t type, int8_t lang);
 
@@ -38,11 +38,11 @@ public:
   // are added.
   void AddCategoryByTypeAllLangs(uint32_t type);
 
-  // Adds all categories from data/classificator.txt. Only
+  // Adds all categories from the holder. Only
   // names in language |lang| are added.
   void AddAllCategoriesInLang(int8_t lang);
 
-  // Adds all categories from data/classificator.txt.
+  // Adds all categories from the holder.
   void AddAllCategoriesInAllLangs();
 
   // Returns all categories that have |query| as a substring. Note
@@ -62,9 +62,7 @@ public:
 #endif
 
 private:
-  // There is a raw pointer instead of const reference
-  // here because this class may be used from Objectvie-C
-  // so a default constructor is needed.
+  // A non-owning pointer keeps the index move-assignable. The holder must outlive the index.
   CategoriesHolder const * m_catHolder = nullptr;
   base::MemTrie<std::string, base::VectorValues<uint32_t>> m_trie;
 };

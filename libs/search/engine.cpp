@@ -10,6 +10,7 @@
 #include "base/scope_guard.hpp"
 #include "base/timer.hpp"
 
+#include <algorithm>
 #include <map>
 #include <vector>
 
@@ -19,26 +20,26 @@ namespace
 {
 class InitSuggestions
 {
-  std::map<std::pair<strings::UniString, int8_t>, uint8_t> m_suggests;
+  std::map<std::pair<strings::UniString, int8_t>, CategoriesHolder::Category::Name> m_suggests;
 
 public:
   void operator()(CategoriesHolder::Category::Name const & name)
   {
     if (name.m_prefixLengthToSuggest != CategoriesHolder::Category::kEmptyPrefixLength)
     {
-      strings::UniString const uniName = NormalizeAndSimplifyString(name.m_name);
-
-      uint8_t & score = m_suggests[std::make_pair(uniName, name.m_locale)];
-      if (score == 0 || score > name.m_prefixLengthToSuggest)
-        score = name.m_prefixLengthToSuggest;
+      // Keep the first spelling for each normalized name and locale, with the shortest suggestion threshold.
+      auto [it, inserted] =
+          m_suggests.try_emplace(std::make_pair(NormalizeAndSimplifyString(name.m_name), name.m_locale), name);
+      if (!inserted)
+        it->second.m_prefixLengthToSuggest = std::min(it->second.m_prefixLengthToSuggest, name.m_prefixLengthToSuggest);
     }
   }
 
   void GetSuggests(std::vector<Suggest> & suggests) const
   {
     suggests.reserve(suggests.size() + m_suggests.size());
-    for (auto const & s : m_suggests)
-      suggests.emplace_back(s.first.first, s.second, s.first.second);
+    for (auto const & [key, name] : m_suggests)
+      suggests.emplace_back(name.m_name, key.first, name.m_prefixLengthToSuggest, key.second);
   }
 };
 }  // namespace
